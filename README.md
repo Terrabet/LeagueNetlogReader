@@ -1,7 +1,7 @@
 # League of Legends NetLog Reader
-# Network Analysis Tool
+# Analysis Tool
 
-The Network Analysis Tool is a .NET application that allows users to analyze network data from League of Legends netlog files and identify potential issues. It provides a user-friendly interface for loading netlog files, calculating average values, detecting anomalies, and generating an analysis report.
+The Analysis Tool is a .NET application that allows users to analyze network data from League of Legends netlog files and identify potential issues. It provides a user-friendly interface for loading netlog files, calculating average values, detecting anomalies, and generating an analysis report.
 
 ## Features
 
@@ -12,7 +12,7 @@ The Network Analysis Tool is a .NET application that allows users to analyze net
 - Analysis report in a flash.
 
 ## Usage
-Launch the Network Analysis Tool.
+Launch the Analysis Tool.
 Drag and drop your League of Legends netlog file onto the application window.
 (files are usually located in Riot Games\League of Legends\Logs\GameLogs\{Date}\*****netlog.txt)
 The tool will automatically load the netlog file and calculate average values for each metric.
