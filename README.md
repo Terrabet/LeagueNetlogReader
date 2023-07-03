@@ -1,1 +1,1 @@
-# LeaugueNetworkLogReader
+# League of Legends NeLog Reader
