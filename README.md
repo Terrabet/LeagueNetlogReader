@@ -18,7 +18,7 @@ Drag and drop your League of Legends netlog file onto the application window.
 The tool will automatically load the netlog file and calculate average values for each metric.
 
 ## Bad Connection Example
-![Network Analysis Tool Bad Connection Example](/images/BadConnectionExample.gif)
+![Network Analysis Tool Bad Connection Example](/Screenshots/BadConnectionExample.gif)
 
 ## Good Connection Example
-![Network Analysis Tool Good Connection Example](/images/GoodConnectionExample.gif)
+![Network Analysis Tool Good Connection Example](/Screenshots/GoodConnectionExample.gif)
