@@ -23,6 +23,7 @@ Partial Class MainForm
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As DataGridViewCellStyle = New DataGridViewCellStyle()
         Dim resources As ComponentModel.ComponentResourceManager = New ComponentModel.ComponentResourceManager(GetType(MainForm))
         DataGridView1 = New DataGridView()
         dropcap = New Label()
@@ -36,11 +37,19 @@ Partial Class MainForm
         DataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
         DataGridView1.BackgroundColor = Color.DimGray
         DataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        DataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle2.BackColor = Color.Gainsboro
+        DataGridViewCellStyle2.Font = New Font("Consolas", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
+        DataGridViewCellStyle2.ForeColor = SystemColors.ControlText
+        DataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight
+        DataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText
+        DataGridViewCellStyle2.WrapMode = DataGridViewTriState.False
+        DataGridView1.DefaultCellStyle = DataGridViewCellStyle2
         DataGridView1.Dock = DockStyle.Fill
         DataGridView1.Location = New Point(0, 0)
         DataGridView1.Name = "DataGridView1"
         DataGridView1.RowTemplate.Height = 25
-        DataGridView1.Size = New Size(686, 390)
+        DataGridView1.Size = New Size(1084, 436)
         DataGridView1.TabIndex = 0
         ' 
         ' dropcap
@@ -51,7 +60,7 @@ Partial Class MainForm
         dropcap.ForeColor = Color.Gray
         dropcap.Location = New Point(0, 0)
         dropcap.Name = "dropcap"
-        dropcap.Size = New Size(686, 390)
+        dropcap.Size = New Size(1084, 436)
         dropcap.TabIndex = 1
         dropcap.Text = "DROP A FILE HERE"
         dropcap.TextAlign = ContentAlignment.MiddleCenter
@@ -61,7 +70,7 @@ Partial Class MainForm
         AllowDrop = True
         AutoScaleDimensions = New SizeF(6F, 13F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(686, 390)
+        ClientSize = New Size(1084, 436)
         Controls.Add(dropcap)
         Controls.Add(DataGridView1)
         Font = New Font("Consolas", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
