@@ -66,15 +66,32 @@ Public Class MainForm
             table.Columns.Add(columnName)
         Next
 
-        ' Extract data rows
+        Dim isHeaderLineRead As Boolean = False
+        ' Change Time Data to be more user readable
         For Each line As String In logLines
             Dim parts As String() = line.Split(","c)
+            Dim partTime As TimeSpan
+
             If parts.Length = table.Columns.Count Then
-                table.Rows.Add(parts)
+                If isHeaderLineRead Then
+                    partTime = TimeSpan.FromMilliseconds(parts(0))
+                    parts(0) = "m: " & partTime.Minutes.ToString & " s: " & partTime.Seconds.ToString
+                    table.Rows.Add(parts)
+                Else
+                    isHeaderLineRead = True
+                End If
             End If
         Next
 
-        table.Rows(0).Delete()
+        ' Extract data rows
+        'For Each line As String In logLines
+        ' Dim parts As String() = line.Split(","c)
+        ' If parts.Length = table.Columns.Count Then
+        ' table.Rows.Add(parts)
+        ' End If
+        ' Next
+
+        'table.Rows(0).Delete()
 
         ' Display data in DataGridView
         DataGridView1.DataSource = table
@@ -134,8 +151,6 @@ Public Class MainForm
             reconnectAverage = reconnectValues.Average()
         End If
 
-
-
         ' Calculate thresholds relative to average values
         Dim maximumPingThreshold As Double = pingAverage * 1.2
         Dim highestPing = table.AsEnumerable().Max(Function(row) Convert.ToInt32(row("ping")))
@@ -155,9 +170,6 @@ Public Class MainForm
 
         Dim maxOutgoingChange As Integer = 0
         Dim minOutgoingChange As Integer = Integer.MaxValue
-
-
-
 
         ' Perform analysis and highlight cells if necessary
         For Each row As DataGridViewRow In DataGridView1.Rows
@@ -268,7 +280,7 @@ Public Class MainForm
 
         Dim reconnectCount As Integer = 0
         If table.Columns.Contains("reconnect") Then
-            reconnectCount = table.AsEnumerable().Max(Function(row) Convert.ToInt32(row("reconnect")))
+            reconnectCount = table.AsEnumerable().Count(Function(row) Convert.ToInt32(row("reconnect")))
         End If
 
         ' Generate analysis report
@@ -325,7 +337,5 @@ Public Class MainForm
 
 
     End Sub
-
-
 
 End Class
