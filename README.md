@@ -17,6 +17,9 @@ Drag and drop your League of Legends netlog file onto the application window.
 (files are usually located in Riot Games\League of Legends\Logs\GameLogs\{Date}\*****netlog.txt)
 The tool will automatically load the netlog file and calculate average values for each metric.
 
+## Contribute
+Contribution and improvements to the LoL Log File Analyzer are warmly welcomed. If you have any suggestions, bug fixes, or new features to add, please feel free to submit a pull request or open an issue on the GitHub repository. Together, we can enhance and refine this tool for the benefit of the League of Legends community.
+
 ## Bad Connection Example
 ![Network Analysis Tool Bad Connection Example](/Screenshots/BadConnectionExample.gif)
 
