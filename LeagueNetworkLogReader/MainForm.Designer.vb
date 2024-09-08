@@ -22,11 +22,19 @@ Partial Class MainForm
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        components = New ComponentModel.Container()
         Dim DataGridViewCellStyle1 As DataGridViewCellStyle = New DataGridViewCellStyle()
         Dim resources As ComponentModel.ComponentResourceManager = New ComponentModel.ComponentResourceManager(GetType(MainForm))
         DataGridView1 = New DataGridView()
+        OptionContextMenu = New ContextMenuStrip(components)
+        ViewToolStripMenuItem = New ToolStripMenuItem()
+        ShowLogFilesToolStripMenuItem = New ToolStripMenuItem()
+        GlueWindowsToolStripMenuItem = New ToolStripMenuItem()
+        ShowOverviewAnalysisToolStripMenuItem = New ToolStripMenuItem()
+        AnalyzeNowToolStripMenuItem = New ToolStripMenuItem()
         dropcap = New Label()
         CType(DataGridView1, ComponentModel.ISupportInitialize).BeginInit()
+        OptionContextMenu.SuspendLayout()
         SuspendLayout()
         ' 
         ' DataGridView1
@@ -36,6 +44,7 @@ Partial Class MainForm
         DataGridView1.AllowUserToResizeRows = False
         DataGridView1.BackgroundColor = Color.DimGray
         DataGridView1.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single
+        DataGridView1.ContextMenuStrip = OptionContextMenu
         DataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle1.BackColor = Color.Gainsboro
         DataGridViewCellStyle1.Font = New Font("Consolas", 8.25F, FontStyle.Regular, GraphicsUnit.Point)
@@ -53,9 +62,53 @@ Partial Class MainForm
         DataGridView1.Size = New Size(1084, 436)
         DataGridView1.TabIndex = 0
         ' 
+        ' OptionContextMenu
+        ' 
+        OptionContextMenu.Items.AddRange(New ToolStripItem() {ViewToolStripMenuItem, AnalyzeNowToolStripMenuItem})
+        OptionContextMenu.Name = "ContextMenu"
+        OptionContextMenu.Size = New Size(181, 70)
+        ' 
+        ' ViewToolStripMenuItem
+        ' 
+        ViewToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {ShowLogFilesToolStripMenuItem, GlueWindowsToolStripMenuItem, ShowOverviewAnalysisToolStripMenuItem})
+        ViewToolStripMenuItem.Name = "ViewToolStripMenuItem"
+        ViewToolStripMenuItem.Size = New Size(180, 22)
+        ViewToolStripMenuItem.Text = "View"
+        ' 
+        ' ShowLogFilesToolStripMenuItem
+        ' 
+        ShowLogFilesToolStripMenuItem.Checked = True
+        ShowLogFilesToolStripMenuItem.CheckState = CheckState.Checked
+        ShowLogFilesToolStripMenuItem.Name = "ShowLogFilesToolStripMenuItem"
+        ShowLogFilesToolStripMenuItem.Size = New Size(201, 22)
+        ShowLogFilesToolStripMenuItem.Text = "Show Log Files"
+        ' 
+        ' GlueWindowsToolStripMenuItem
+        ' 
+        GlueWindowsToolStripMenuItem.Checked = True
+        GlueWindowsToolStripMenuItem.CheckState = CheckState.Checked
+        GlueWindowsToolStripMenuItem.Name = "GlueWindowsToolStripMenuItem"
+        GlueWindowsToolStripMenuItem.Size = New Size(201, 22)
+        GlueWindowsToolStripMenuItem.Text = "Glue Windows"
+        ' 
+        ' ShowOverviewAnalysisToolStripMenuItem
+        ' 
+        ShowOverviewAnalysisToolStripMenuItem.Checked = True
+        ShowOverviewAnalysisToolStripMenuItem.CheckState = CheckState.Checked
+        ShowOverviewAnalysisToolStripMenuItem.Name = "ShowOverviewAnalysisToolStripMenuItem"
+        ShowOverviewAnalysisToolStripMenuItem.Size = New Size(201, 22)
+        ShowOverviewAnalysisToolStripMenuItem.Text = "Show Overview Analysis"
+        ' 
+        ' AnalyzeNowToolStripMenuItem
+        ' 
+        AnalyzeNowToolStripMenuItem.Name = "AnalyzeNowToolStripMenuItem"
+        AnalyzeNowToolStripMenuItem.Size = New Size(180, 22)
+        AnalyzeNowToolStripMenuItem.Text = "Analyze Now"
+        ' 
         ' dropcap
         ' 
         dropcap.BackColor = Color.DimGray
+        dropcap.ContextMenuStrip = OptionContextMenu
         dropcap.Dock = DockStyle.Fill
         dropcap.Font = New Font("Consolas", 48F, FontStyle.Regular, GraphicsUnit.Point)
         dropcap.ForeColor = Color.Gray
@@ -63,7 +116,7 @@ Partial Class MainForm
         dropcap.Name = "dropcap"
         dropcap.Size = New Size(1084, 436)
         dropcap.TabIndex = 1
-        dropcap.Text = "DROP A FILE HERE"
+        dropcap.Text = "DROP A FILE HERE" & vbCrLf & "(_netlog.txt)"
         dropcap.TextAlign = ContentAlignment.MiddleCenter
         ' 
         ' MainForm
@@ -80,9 +133,16 @@ Partial Class MainForm
         Name = "MainForm"
         Text = "Analyze Leauge of Legnds NetLog"
         CType(DataGridView1, ComponentModel.ISupportInitialize).EndInit()
+        OptionContextMenu.ResumeLayout(False)
         ResumeLayout(False)
     End Sub
 
     Friend WithEvents DataGridView1 As DataGridView
     Friend WithEvents dropcap As Label
+    Friend WithEvents OptionContextMenu As ContextMenuStrip
+    Friend WithEvents ViewToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ShowLogFilesToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents GlueWindowsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ShowOverviewAnalysisToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents AnalyzeNowToolStripMenuItem As ToolStripMenuItem
 End Class

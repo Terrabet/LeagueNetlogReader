@@ -5,6 +5,15 @@ Imports System.Windows.Forms.DataVisualization.Charting
 Public Class MainForm
     Private Descriptions As New Dictionary(Of String, String)
     Private table As DataTable
+    Friend logListForm As Form
+
+    ' Options
+    Friend showLogFiles As Boolean = True
+    Friend glueWindows As Boolean = True
+    Friend showOverviewAnalysis As Boolean = True
+
+    Private lastFile As String = ""
+
 
     Private Sub MainForm_DragEnter(sender As Object, e As DragEventArgs) Handles MyBase.DragEnter
         ' Check if the dragged data contains file(s)
@@ -21,13 +30,44 @@ Public Class MainForm
         ' Process each dropped file
         For Each filePath As String In filePaths
             dropcap.Visible = False
-            ' Load and process the file here
-            LoadLogFile(filePath)
-        Next
 
+            ' Process the file as a normal log file if not in the GameLogs folder
+            LoadLogFile(filePath)
+            If showLogFiles = True Then
+                ' Check if the file is from the GameLogs folder
+                If filePath.Contains("Logs\GameLogs") Then
+                    ' Get the directory of the dragged file
+                    Dim draggedDirectory As String = Path.GetDirectoryName(filePath)
+
+                    ' Check if the directory contains _netlog.txt files
+                    If Directory.Exists(draggedDirectory) Then
+                        ' Find all the netlog files in the parent GameLogs folder
+                        Dim gameLogsFolder As String = Directory.GetParent(draggedDirectory).FullName
+                        Dim netlogFiles As String() = Directory.GetFiles(gameLogsFolder, "*_netlog.txt", SearchOption.AllDirectories)
+
+                        ' Show the logs in a new window
+                        ShowLogListWindow(netlogFiles)
+                    End If
+                Else
+                    ' Process the file as a normal log file if not in the GameLogs folder
+                    LoadLogFile(filePath)
+                End If
+            End If
+        Next
     End Sub
 
-    Private Sub LoadLogFile(filePath As String)
+    Private Sub ShowLogListWindow(netlogFiles As String())
+        ' Create a new instance of the LogListForm and pass the log files
+        logListForm = New LogListForm(netlogFiles)
+
+        ' Show the form as a modal dialog
+        logListForm.Show()
+    End Sub
+
+    Friend Function LoadLogFile(filePath As String) As LogFileMetrics
+        If filePath = vbNullString Then Exit Function
+        lastFile = filePath
+
         Dim logLines As String() = File.ReadAllLines(filePath)
         Dim hasDescriptions As Boolean = False
         Descriptions.Clear()
@@ -48,7 +88,7 @@ Public Class MainForm
         Dim columnNamesLine As String = logLines.LastOrDefault(Function(line) line.Contains("[") AndAlso line.Contains("]"))
         If columnNamesLine Is Nothing Then
             MessageBox.Show("Failed to find column headings in the log file.")
-            Return
+            'Return
         End If
 
         ' Extract column names from the line
@@ -83,27 +123,24 @@ Public Class MainForm
             End If
         Next
 
-        ' Extract data rows
-        'For Each line As String In logLines
-        ' Dim parts As String() = line.Split(","c)
-        ' If parts.Length = table.Columns.Count Then
-        ' table.Rows.Add(parts)
-        ' End If
-        ' Next
-
-        'table.Rows(0).Delete()
-
-        ' Display data in DataGridView
         DataGridView1.DataSource = table
 
         For Each col As DataGridViewColumn In DataGridView1.Columns
             col.ToolTipText = Descriptions(col.Name.ToLower)
         Next
 
-        AnalyzeDataAndHighlightIssues()
-    End Sub
 
-    Private Sub AnalyzeDataAndHighlightIssues()
+        Dim LogMetrics = New LogFileMetrics
+
+        LogMetrics = AnalyzeDataAndHighlightIssues()
+
+        LogMetrics.LogDate = ExtractLogDate(filePath)
+
+        Return LogMetrics
+
+    End Function
+
+    Private Function AnalyzeDataAndHighlightIssues() As LogFileMetrics
 
         ' Calculate average values for each column
         Dim pingAverage As Double = 0
@@ -283,59 +320,145 @@ Public Class MainForm
             reconnectCount = table.AsEnumerable().Count(Function(row) Convert.ToInt32(row("reconnect")))
         End If
 
-        ' Generate analysis report
-        Dim analysisReport As New StringBuilder()
+        If showOverviewAnalysis = True Then
+            ' Generate analysis report
+            Dim analysisReport As New StringBuilder()
 
-        analysisReport.AppendLine("Analysis Based On File")
-        analysisReport.AppendLine("-----------------------")
+            analysisReport.AppendLine("Analysis Based On File")
+            analysisReport.AppendLine("-----------------------")
 
-        analysisReport.AppendLine("Ping:")
-        analysisReport.AppendLine($"- Ping Average: {pingAverage}")
-        analysisReport.AppendLine($"- Ping High: {highestPing}")
-        analysisReport.AppendLine()
+            analysisReport.AppendLine("Ping:")
+            analysisReport.AppendLine($"- Ping Average: {pingAverage}")
+            analysisReport.AppendLine($"- Ping High: {highestPing}")
+            analysisReport.AppendLine()
 
-        analysisReport.AppendLine("Incoming:")
-        analysisReport.AppendLine($"- Incoming Change Threshold: {incomingChangeThreshold}")
-        analysisReport.AppendLine($"- Max Incoming Change: {maxIncomingChange}")
-        analysisReport.AppendLine($"- Min Incoming Change: {minIncomingChange}")
-        analysisReport.AppendLine()
+            analysisReport.AppendLine("Incoming:")
+            analysisReport.AppendLine($"- Incoming Change Threshold: {incomingChangeThreshold}")
+            analysisReport.AppendLine($"- Max Incoming Change: {maxIncomingChange}")
+            analysisReport.AppendLine($"- Min Incoming Change: {minIncomingChange}")
+            analysisReport.AppendLine()
 
-        analysisReport.AppendLine("Outgoing:")
-        analysisReport.AppendLine($"- Outgoing Change Threshold: {outgoingChangeThreshold}")
-        analysisReport.AppendLine($"- Max Outgoing Change: {maxOutgoingChange}")
-        analysisReport.AppendLine($"- Min Outgoing Change: {minOutgoingChange}")
-        analysisReport.AppendLine()
+            analysisReport.AppendLine("Outgoing:")
+            analysisReport.AppendLine($"- Outgoing Change Threshold: {outgoingChangeThreshold}")
+            analysisReport.AppendLine($"- Max Outgoing Change: {maxOutgoingChange}")
+            analysisReport.AppendLine($"- Min Outgoing Change: {minOutgoingChange}")
+            analysisReport.AppendLine()
 
-        analysisReport.AppendLine("Jitter:")
-        analysisReport.AppendLine($"- Maximum Jitter Threshold: {maximumJitterThreshold}")
-        analysisReport.AppendLine()
+            analysisReport.AppendLine("Jitter:")
+            analysisReport.AppendLine($"- Maximum Jitter Threshold: {maximumJitterThreshold}")
+            analysisReport.AppendLine()
 
-        analysisReport.AppendLine("Packet Loss:")
-        analysisReport.AppendLine($"- Packet Loss Threshold: {packetLossThreshold}")
-        analysisReport.AppendLine($"- Packet Loss Amount: {highestPacketLoss}")
-        analysisReport.AppendLine()
+            analysisReport.AppendLine("Packet Loss:")
+            analysisReport.AppendLine($"- Packet Loss Threshold: {packetLossThreshold}")
+            analysisReport.AppendLine($"- Packet Loss Amount: {highestPacketLoss}")
+            analysisReport.AppendLine()
 
-        analysisReport.AppendLine("Reconnect:")
-        analysisReport.AppendLine($"- Reconnect Count: {reconnectCount}")
-        analysisReport.AppendLine()
+            analysisReport.AppendLine("Reconnect:")
+            analysisReport.AppendLine($"- Reconnect Count: {reconnectCount}")
+            analysisReport.AppendLine()
 
-        ' Explanation of network issues
-        analysisReport.AppendLine("Explanation of Network Issues")
-        analysisReport.AppendLine("-----------------------")
-        analysisReport.AppendLine("1. Ping: The ping value represents the round-trip time it takes for a network packet to travel from your computer to the game server and back. Higher ping values indicate longer delays in communication and can lead to increased lag in online games.")
+            ' Explanation of network issues
+            analysisReport.AppendLine("Explanation of Network Issues")
+            analysisReport.AppendLine("-----------------------")
+            analysisReport.AppendLine("1. Ping: The ping value represents the round-trip time it takes for a network packet to travel from your computer to the game server and back. Higher ping values indicate longer delays in communication and can lead to increased lag in online games.")
 
-        analysisReport.AppendLine("2. Incoming/Outgoing Changes: These values represent the difference in incoming and outgoing packets between consecutive rows. Significant changes in these values can indicate variations in network traffic, which may result in delays or disruptions in your connection to the game server.")
+            analysisReport.AppendLine("2. Incoming/Outgoing Changes: These values represent the difference in incoming and outgoing packets between consecutive rows. Significant changes in these values can indicate variations in network traffic, which may result in delays or disruptions in your connection to the game server.")
 
-        analysisReport.AppendLine("3. Jitter: Jitter refers to the variation in delay between packets arriving at their destination. Higher jitter values indicate an inconsistent network connection, which can lead to unstable gameplay, increased lag, and disruptions in real-time applications.")
+            analysisReport.AppendLine("3. Jitter: Jitter refers to the variation in delay between packets arriving at their destination. Higher jitter values indicate an inconsistent network connection, which can lead to unstable gameplay, increased lag, and disruptions in real-time applications.")
 
-        analysisReport.AppendLine("4. Packet Loss: Packet loss occurs when network packets fail to reach their destination. High packet loss can result in missing or delayed data, leading to poor gameplay experience, increased lag, and potential disconnections.")
+            analysisReport.AppendLine("4. Packet Loss: Packet loss occurs when network packets fail to reach their destination. High packet loss can result in missing or delayed data, leading to poor gameplay experience, increased lag, and potential disconnections.")
 
-        analysisReport.AppendLine("5. Reconnect: Reconnect events indicate instances where your client disconnected from the game server and then reconnected. Frequent or prolonged reconnect events may indicate instability in your network connection or disruptions in the game server.")
+            analysisReport.AppendLine("5. Reconnect: Reconnect events indicate instances where your client disconnected from the game server and then reconnected. Frequent or prolonged reconnect events may indicate instability in your network connection or disruptions in the game server.")
 
-        ' Display analysis report
-        MessageBox.Show(analysisReport.ToString(), "Network Analysis Report", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ' Display analysis report
+            MessageBox.Show(analysisReport.ToString(), "Network Analysis Report", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        End If
 
+        Dim logMetrics As New LogFileMetrics
 
+        logMetrics.HighestPing = highestPing
+        logMetrics.HighestJitter = jitterAverage
+        logMetrics.HighestPacketLoss = highestPacketLoss
+        logMetrics.Reconnects = reconnectCount
+        logMetrics.PacketBytesMaxIncomingChange = maxIncomingChange
+        logMetrics.PacketBytesMaxOutgoingChange = maxOutgoingChange
+
+        Return logMetrics
+
+    End Function
+
+#Region "Form Glue"
+    Private Sub MainForm_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
+        If glueWindows = True Then
+            ' Check if LogListForm is open and reposition it
+            If logListForm IsNot Nothing AndAlso logListForm.Visible Then
+                logListForm.Left = Me.Right + 5
+                logListForm.Top = Me.Top
+                logListForm.Height = Me.Height
+            End If
+        End If
     End Sub
+
+    Private Sub MainForm_Move(sender As Object, e As EventArgs) Handles MyBase.Move
+        If glueWindows = True Then
+            Call MainForm_Resize(sender, e)
+        End If
+    End Sub
+#End Region
+
+#Region "Context Menu"
+    Private Sub ShowLogFilesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ShowLogFilesToolStripMenuItem.Click
+        ShowLogFilesToolStripMenuItem.Checked = Not ShowLogFilesToolStripMenuItem.Checked
+        ' Update the boolean variable
+        showLogFiles = ShowLogFilesToolStripMenuItem.Checked
+    End Sub
+
+    Private Sub GlueWindowsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GlueWindowsToolStripMenuItem.Click
+        GlueWindowsToolStripMenuItem.Checked = Not GlueWindowsToolStripMenuItem.Checked
+        ' Update the boolean variable
+        glueWindows = GlueWindowsToolStripMenuItem.Checked
+    End Sub
+
+    Private Sub ShowOverviewAnalysisToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ShowOverviewAnalysisToolStripMenuItem.Click
+        ShowOverviewAnalysisToolStripMenuItem.Checked = Not ShowOverviewAnalysisToolStripMenuItem.Checked
+        ' Update the boolean variable
+        showOverviewAnalysis = ShowOverviewAnalysisToolStripMenuItem.Checked
+    End Sub
+
+    Private Sub AnalyzeNowToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AnalyzeNowToolStripMenuItem.Click
+        LoadLogFile(lastFile)
+    End Sub
+#End Region
+
+#Region "LogsMetrics"
+
+    Public Class LogFileMetrics
+        Public Property LogDate As DateTime
+        Public Property HighestPing As Integer
+        Public Property HighestJitter As Integer
+        Public Property HighestPacketLoss As Double
+        Public Property Reconnects As Integer
+        Public Property PacketBytesMaxIncomingChange As Integer
+        Public Property PacketBytesMaxOutgoingChange As Integer
+    End Class
+
+#End Region
+
+    Public Function ExtractLogDate(filePath As String) As DateTime?
+        ' Extract the file name from the path
+        Dim fileName As String = Path.GetFileNameWithoutExtension(filePath)
+
+        ' Remove the '_netlog' part to get the date and time part
+        Dim datePart As String = fileName.Split("_"c)(0) ' This assumes '_netlog' is always present
+
+        ' Try to parse the date string into a DateTime object
+        Dim logDate As DateTime
+        If DateTime.TryParseExact(datePart, "yyyy-MM-ddTHH-mm-ss", Nothing, Globalization.DateTimeStyles.None, logDate) Then
+            Return logDate
+        Else
+            ' If parsing fails, return Nothing or handle the error as needed
+            Return Nothing
+        End If
+    End Function
 
 End Class
