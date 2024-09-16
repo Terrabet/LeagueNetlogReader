@@ -57,10 +57,12 @@ Public Class MainForm
     End Sub
 
     Private Sub ShowLogListWindow(netlogFiles As String())
-        ' Create a new instance of the LogListForm and pass the log files
-        logListForm = New LogListForm(netlogFiles)
-
-        ' Show the form as a modal dialog
+        If logListForm Is Nothing Then
+            ' Create a new instance of the LogListForm and pass the log files
+            logListForm = New LogListForm(netlogFiles)
+        ElseIf logListForm.IsDisposed Then
+            logListForm = New LogListForm(netlogFiles)
+        End If
         logListForm.Show()
     End Sub
 

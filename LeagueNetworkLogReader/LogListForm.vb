@@ -121,6 +121,7 @@ Friend Class LogListForm
             Dim series As New DataVisualization.Charting.Series(chartType.Key)
             series.ChartType = chartType.Value
             series.XValueType = DataVisualization.Charting.ChartValueType.DateTime
+            series.BorderWidth = 2
             metricsChart.Series.Add(series)
 
             ' Add data to the series
